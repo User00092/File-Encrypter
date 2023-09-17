@@ -1,0 +1,8 @@
+-- V 1.1 --
+1. Added `print_text_with_solid_color` to the `color` module to incorporate [Pull #1](https://github.com/User00092/File-Encrypter/pull/1).
+2. Updated the `main()` function to include the `handle_response` function.
+3. Integrated functions into the actions section of the `main()` function to enhance code organization and minimize potential errors.
+4. Renamed `modes` to `actions` to better align with the specific use case.
+5. Corrected spacing issues between functions for improved readability.
+6. Utilized AI to add comprehensive documentation to functions.
+7. Added `try`-`catch` to `main()` within `if __name__ == "__main__"` to handle uncaught exceptions.

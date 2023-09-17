@@ -1,87 +1,66 @@
 import actions
 import utils
 import color
-import json
 
 config = utils.Config("config.json")
+green_rgb = (128, 202, 49)
+red_rgb = (224, 17, 43)
+royal_blue_rgb = (65, 105, 225)
 
 
 def main() -> bool:
-    modes: dict = {
-        1: "Encrypt",
-        2: "Decrypt",
-        3: "Add file",
-        4: "Remove file",
-        5: "Add folder",
-        6: "Remove folder",
-        7: "List paths",
-        8: "Exit"
+    def handle_response(response: dict) -> bool:
+        color.print_text_with_solid_color(response.get('message', "No message provided."), green_rgb if response.get('status') else red_rgb)
+    
+    action_choices: dict = {
+        1: {"name": "Encrypt", "function": lambda: handle_response(actions.encrypt_paths(config.read().get("paths", tuple())))},
+        2: {"name": "Decrypt", "function": lambda: handle_response(actions.decrypt_paths(config.read().get("paths", tuple())))},
+        3: {"name": "Add file", "function": lambda: handle_response(actions.add_file_to_config())},
+        4: {"name": "Remove file", "function": lambda: handle_response(actions.remove_file_from_config())},
+        5: {"name": "Add folder", "function": lambda: handle_response(actions.add_folder_to_config())},
+        6: {"name": "Remove folder", "function": lambda: handle_response(actions.remove_folder_from_config())},
+        7: {"name": "List paths", "function": lambda: actions.list_paths_in_config()},
+        8: {"name": "Exit"}
     }
 
-    display_text = "Choose a mode: "
+    display_text = "Select an action: "
 
-    for mode, value in modes.items():
-        display_text += f"\n{mode}: {value}"
+    for mode, value in action_choices.items():
+        display_text += f"\n{mode}: {value.get('name')}"
+
+    color.print_text_with_solid_color(display_text, royal_blue_rgb)
     
-    gradient = color.create_gradient((65, 105, 225), (65, 105, 225)) # Royal blue
-    print(color.get_text_with_gradient(display_text, gradient))
-    
-    selected_mode: str = input(color.get_text_with_gradient("--> ", gradient))
-    if not selected_mode.isdigit() or int(selected_mode) not in modes:
+    selected_mode: str = input(color.get_text_with_gradient("--> ", (royal_blue_rgb, royal_blue_rgb)))
+
+    if not selected_mode or not selected_mode.isdigit() or int(selected_mode) not in action_choices:
         print("Please enter a valid choice.")
-        input("Press enter to continue...")
         return True
     
     selected_mode = int(selected_mode)
-
-    green_rgb = (128, 202, 49)
-    red_rgb = (224, 17, 43)
-
-    if selected_mode == 1:
-        response = actions.encrypt_paths(config.read().get("paths", tuple()))
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
-
-    elif selected_mode == 2:
-        response = actions.decrypt_paths(config.read().get("paths", tuple()))
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
     
-    elif selected_mode == 3:
-        response = actions.add_file_to_config()
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
-
-    elif selected_mode == 4:
-        response = actions.remove_file_from_config()
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
-    
-    elif selected_mode == 5:
-        response = actions.add_folder_to_config()
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
-    
-    elif selected_mode == 6:
-        response = actions.remove_folder_from_config()
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
-    
-    elif selected_mode == 7:
-        actions.list_paths_in_config()
-    
-    elif selected_mode == 8:
+    function_ = action_choices[selected_mode].get("function")
+    if function_ is None:
         return False
-    
-    input("Press enter to continue...")
-    return True
+    else:
+        function_()
+        return True
+
 
 if __name__ == "__main__":
     while True:
-        utils.clear_terminal()
-        result = main()
-        if not result:
+        try:
+            utils.clear_terminal()
+            try:
+                result = main()
+                if not result:
+                    break
+            except Exception:
+                utils.clear_terminal()
+                color.print_text_with_solid_color("Something went wrong.", red_rgb)
+            
+            input("Press enter to continue...")
+        except KeyboardInterrupt:
             break
     
     utils.clear_terminal()
-    print("Exited.")
+    color.print_text_with_solid_color("Exited.", red_rgb)

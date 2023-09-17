@@ -6,6 +6,14 @@ import json
 config = utils.Config("config.json")
 
 
+def show_gradient(response):
+    gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
+    print(color.get_text_with_gradient(response.get('message'), gradient))
+
+
+green_rgb = (128, 202, 49)
+red_rgb = (224, 17, 43)
+
 def main() -> bool:
     modes: dict = {
         1: "Encrypt",
@@ -34,38 +42,34 @@ def main() -> bool:
     
     selected_mode = int(selected_mode)
 
-    green_rgb = (128, 202, 49)
-    red_rgb = (224, 17, 43)
 
     if selected_mode == 1:
         response = actions.encrypt_paths(config.read().get("paths", tuple()))
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
+        show_gradient(response)
 
     elif selected_mode == 2:
         response = actions.decrypt_paths(config.read().get("paths", tuple()))
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
+        show_gradient(response)
     
     elif selected_mode == 3:
         response = actions.add_file_to_config()
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
+        show_gradient(response)
+
 
     elif selected_mode == 4:
         response = actions.remove_file_from_config()
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
+        show_gradient(response)
+
     
     elif selected_mode == 5:
         response = actions.add_folder_to_config()
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
+        show_gradient(response)
+
     
     elif selected_mode == 6:
         response = actions.remove_folder_from_config()
-        gradient = color.create_gradient(green_rgb, green_rgb) if response.get('status') else color.create_gradient(red_rgb, red_rgb)
-        print(color.get_text_with_gradient(response.get('message'), gradient))
+        show_gradient(response)
+
     
     elif selected_mode == 7:
         actions.list_paths_in_config()
